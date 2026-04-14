@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+
+class UserController extends Controller
+{
+    /**
+     * Display a listing of users.
+     */
+    public function index()
+    {
+        $users = User::paginate(10);
+
+        return view('admin.admin', compact('users'));
+    }
+}
