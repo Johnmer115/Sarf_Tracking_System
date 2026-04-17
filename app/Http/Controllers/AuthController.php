@@ -2,36 +2,54 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
     /**
      * Handle login request
      */
-    public function login(Request $request)
+    public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'account' => 'required|string',
+            'password' => 'required|string',
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+        $account = Account::query()
+            ->where('username', $credentials['account'])
+            ->first();
 
-            return redirect()->route('dashboard');
+        if (! $account || ! Hash::check($credentials['password'], $account->password)) {
+            return back()->withErrors([
+                'account' => 'The provided credentials do not match our records.',
+            ])->onlyInput('account');
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        if (! in_array($account->usertype, ['admin', 'user'], true)) {
+            return back()->withErrors([
+                'account' => 'This account has an invalid user type.',
+            ])->onlyInput('account');
+        }
+
+        Auth::login($account, $request->boolean('remember'));
+        $request->session()->regenerate();
+
+        if ($account->usertype === 'admin') {
+            return redirect()->route('admin.index');
+        }
+
+        return redirect()->route('welcome');
     }
 
     /**
      * Handle logout request
      */
-    public function logout(Request $request)
+    public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
         $request->session()->invalidate();
