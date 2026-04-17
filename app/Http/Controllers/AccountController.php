@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\Branch;
+use App\Models\Organization;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
@@ -19,26 +21,35 @@ class AccountController extends Controller
 
     public function create()
     {
-        return view('admin.account.create');
+        $branches = Branch::orderBy('name')->get(['id', 'name']);
+
+        return view('admin.account.create', compact('branches'));
     }
 
     public function store(Request $request)
     {
-        request()->validate([
-            'username' => 'required|max:255',
-            'usertype' => 'required',
+        $request->validate([
+            'username' => 'required|max:255|unique:accounts,username',
+            'usertype' => 'required|in:admin,user',
             'password' => 'required|min:6',
-            'organization' => 'nullable',
-            'status' => 'nullable',
+            'department_id' => 'nullable|exists:departments,id',
         ]);
 
         $account = new Account;
         $account->username = $request->input('username');
         $account->usertype = $request->input('usertype');
         $account->password = bcrypt($request->input('password'));
-        $account->organization = $request->input('organization');
-        $account->status = $request->input('status') ?? 'active';
+        $account->status = 'active'; // Admin-created accounts are always active
         $account->save();
+
+        // If usertype is 'user' and a department was selected, create the linked Organization
+        if ($request->input('usertype') === 'user' && $request->filled('org_name') && $request->filled('department_id')) {
+            Organization::create([
+                'name' => $request->input('org_name'),
+                'account_id' => $account->id,
+                'department_id' => $request->input('department_id'),
+            ]);
+        }
 
         return redirect()->route('admin.account.index')->with('success', 'Account created successfully.');
     }
@@ -95,9 +106,33 @@ class AccountController extends Controller
      */
     public function destroy(string $id)
     {
-        //
         Account::destroy($id);
 
         return redirect()->route('admin.account.index')->with('success', 'Account deleted successfully.');
+    }
+
+    /**
+     * Approve a pending account — sets status to active.
+     */
+    public function approve(string $id)
+    {
+        $account = Account::findOrFail($id);
+        $account->status = 'active';
+        $account->save();
+
+        return redirect()->route('admin.account.index')->with('success', "Account '{$account->username}' has been approved.");
+    }
+
+    /**
+     * Reject and delete a pending account.
+     * The linked Organization is deleted automatically via onDelete('cascade').
+     */
+    public function reject(string $id)
+    {
+        $account = Account::findOrFail($id);
+        $username = $account->username;
+        $account->delete();
+
+        return redirect()->route('admin.account.index')->with('success', "Registration for '{$username}' has been rejected and removed.");
     }
 }

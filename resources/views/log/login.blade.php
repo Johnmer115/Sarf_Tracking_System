@@ -17,6 +17,12 @@
             </div>
         @endif
 
+        @if (session('success'))
+            <div class="login-alert login-alert--success" role="alert">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('login.attempt') }}" class="login-form">
             @csrf
 
@@ -61,6 +67,11 @@
             <button type="submit" class="login-button">
                 Sign In
             </button>
+
+            <p class="login-register-link">
+                Don't have an account?
+                <a href="{{ route('register') }}">Register as an Organization</a>
+            </p>
         </form>
     </div>
 </section>

@@ -30,6 +30,12 @@ class AuthController extends Controller
             ])->onlyInput('account');
         }
 
+        if ($account->status !== 'active') {
+            return back()->withErrors([
+                'account' => 'Your account is pending admin approval. Please wait for confirmation.',
+            ])->onlyInput('account');
+        }
+
         if (! in_array($account->usertype, ['admin', 'user'], true)) {
             return back()->withErrors([
                 'account' => 'This account has an invalid user type.',

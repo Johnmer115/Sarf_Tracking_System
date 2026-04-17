@@ -29,10 +29,8 @@ class Organization extends Model
         // 🔗 Get Department
         $department = Department::find($organization->department_id);
 
-        
 
         // Safe fallbacks
-        $branchCode = $branch?->code ?? 'AU-BR';
         $departmentCode = $department?->code ?? 'DEPT';
 
         // 🔤 Organization initials
@@ -48,7 +46,7 @@ class Organization extends Model
         $orgCode = $initials !== '' ? $initials : 'ORG';
 
         // 🔥 Final format
-        $baseCode = $branchCode . '-' . $departmentCode . '-' . $orgCode;
+        $baseCode =  $departmentCode . '-' . $orgCode;
 
         $code = $baseCode;
         $suffix = 2;

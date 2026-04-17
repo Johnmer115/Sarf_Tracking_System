@@ -56,7 +56,7 @@
                                     </td>
                                     <td class="td-muted">{{ $account->organization ?? '-' }}</td>
                                     <td class="td-muted">
-                                        <span class="badge {{ $account->status === 'active' ? 'b-active' : 'b-inactive' }}">
+                                        <span class="badge {{ $account->status === 'active' ? 'b-active' : ($account->status === 'pending' ? 'b-pending' : 'b-inactive') }}">
                                             {{ ucfirst($account->status) }}
                                         </span>
                                     </td>
@@ -64,23 +64,49 @@
                                     <td>
                                         <div class="action-cell">
 
+                                            <!-- APPROVE (only for pending) -->
+                                            @if($account->status === 'pending')
+                                                <form action="{{ route('admin.account.approve', $account->id) }}"
+                                                    method="POST"
+                                                    style="display:inline;"
+                                                    onsubmit="return confirm('Approve account {{ $account->username }}?');">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="abtn abtn-approve" title="Approve">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </form>
+
+                                                <!-- REJECT (only for pending) -->
+                                                <form action="{{ route('admin.account.reject', $account->id) }}"
+                                                    method="POST"
+                                                    style="display:inline;"
+                                                    onsubmit="return confirm('Reject and delete account {{ $account->username }}? This cannot be undone.');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="abtn abtn-reject" title="Reject">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+
                                             <!-- VIEW -->
-                                            <a href="{{ route('admin.account.show', $account->id) }}" 
-                                            class="abtn abtn-view" 
+                                            <a href="{{ route('admin.account.show', $account->id) }}"
+                                            class="abtn abtn-view"
                                             title="View">
                                                 <i class="fas fa-eye"></i>
                                             </a>
 
                                             <!-- EDIT -->
-                                            <a href="{{ route('admin.account.edit', $account->id) }}" 
-                                            class="abtn abtn-edit" 
+                                            <a href="{{ route('admin.account.edit', $account->id) }}"
+                                            class="abtn abtn-edit"
                                             title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
 
                                             <!-- DELETE -->
-                                            <form action="{{ route('admin.account.destroy', $account->id) }}" 
-                                                method="POST" 
+                                            <form action="{{ route('admin.account.destroy', $account->id) }}"
+                                                method="POST"
                                                 style="display:inline;"
                                                 onsubmit="return confirm('Are you sure you want to delete this account?');">
                                                 @csrf
