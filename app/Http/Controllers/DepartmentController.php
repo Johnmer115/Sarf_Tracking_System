@@ -28,7 +28,7 @@ class DepartmentController extends Controller
     {
         $branches = Branch::query()
             ->orderBy('name')
-            ->get(['id', 'name', 'code', 'dept_dean']);
+            ->get(['id', 'name', 'code']);
 
         return view('admin.department.create', compact('branches'));
     }
