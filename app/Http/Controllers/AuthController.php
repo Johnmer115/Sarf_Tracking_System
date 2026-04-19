@@ -32,7 +32,7 @@ class AuthController extends Controller
 
         if ($account->status !== 'active') {
             return back()->withErrors([
-                'account' => 'Your account is pending admin approval. Please wait for confirmation.',
+                'account' => 'Your account is not yet active. Please contact the admin for more information.',
             ])->onlyInput('account');
         }
 
