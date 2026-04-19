@@ -77,10 +77,11 @@
                                 type="text"
                                 class="form-control"
                                 id="organization"
-                                name="organization"
-                                value="{{ old('organization', $account->organization) }}"
-                                placeholder="Enter organization"
+                                value="{{ $account->organization?->name ?? 'No organization assigned' }}"
+                                readonly
+                                style="background: var(--input-bg, #f5f5f5); cursor: default;"
                             >
+                            <small style="color: var(--muted, #888);">Organization is managed through the Organizations section.</small>
                         </div>
                         
                         <div class="form-group">

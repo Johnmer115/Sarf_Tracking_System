@@ -79,10 +79,36 @@
                                 type="text"
                                 class="form-control"
                                 id="organization"
-                                value="{{ $account->organization ?: 'No organization assigned' }}"
+                                value="{{ $account->organization?->name ?? 'No organization assigned' }}"
                                 readonly
                             >
                         </div>
+
+                        @if ($account->organization?->code)
+                            <div class="form-group">
+                                <label class="form-label" for="org_code">Organization Code</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="org_code"
+                                    value="{{ $account->organization->code }}"
+                                    readonly
+                                >
+                            </div>
+                        @endif
+
+                        @if ($account->organization?->department)
+                            <div class="form-group">
+                                <label class="form-label" for="department">Department</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="department"
+                                    value="{{ $account->organization->department->name }}"
+                                    readonly
+                                >
+                            </div>
+                        @endif
                     @endif
                 </div>
 

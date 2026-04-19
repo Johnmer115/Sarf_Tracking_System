@@ -4,9 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-#[Fillable(['username', 'usertype', 'password', 'organization', 'status'])]
+#[Fillable(['username', 'usertype', 'password', 'status'])]
 #[Hidden(['password', 'remember_token'])]
 class Account extends Authenticatable
 {
@@ -22,8 +23,11 @@ class Account extends Authenticatable
         ];
     }
 
-    public function organizations()
+    /**
+     * Get the organization linked to this account.
+     */
+    public function organization(): HasOne
     {
-        return $this->belongTo(Organization::class);
+        return $this->hasOne(Organization::class);
     }
 }

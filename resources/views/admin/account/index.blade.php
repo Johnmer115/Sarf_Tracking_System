@@ -54,7 +54,7 @@
                                             {{ ucfirst($account->usertype) }}
                                         </span>
                                     </td>
-                                    <td class="td-muted">{{ $account->organization ?? '-' }}</td>
+                                    <td class="td-muted">{{ $account->organization?->name ?? '-' }}</td>
                                     <td class="td-muted">
                                         <span class="badge {{ $account->status === 'active' ? 'b-active' : ($account->status === 'pending' ? 'b-pending' : 'b-inactive') }}">
                                             {{ ucfirst($account->status) }}

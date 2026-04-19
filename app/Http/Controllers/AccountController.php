@@ -14,7 +14,7 @@ class AccountController extends Controller
      */
     public function index()
     {
-        $accounts = Account::query()->latest()->paginate(10);
+        $accounts = Account::query()->with('organization')->latest()->paginate(10);
 
         return view('admin.account.index', compact('accounts'));
     }
@@ -56,7 +56,7 @@ class AccountController extends Controller
 
     public function show(string $id)
     {
-        $account = Account::findOrFail($id);
+        $account = Account::with('organization.department')->findOrFail($id);
 
         return view('admin.account.view', compact('account'));
     }
@@ -66,11 +66,9 @@ class AccountController extends Controller
      */
     public function edit(string $id)
     {
-        //
-        $account = Account::findOrFail($id);
+        $account = Account::with('organization')->findOrFail($id);
 
         return view('admin.account.edit', compact('account'));
-
     }
 
     /**
@@ -82,14 +80,12 @@ class AccountController extends Controller
             'username' => 'required|max:255',
             'usertype' => 'required',
             'password' => 'nullable|min:6',
-            'organization' => 'nullable',
             'status' => 'nullable',
         ]);
 
         $account = Account::findOrFail($id);
         $account->username = $validated['username'];
         $account->usertype = $validated['usertype'];
-        $account->organization = $validated['organization'] ?? null;
         $account->status = $validated['status'] ?? 'active';
 
         if (filled($validated['password'] ?? null)) {
